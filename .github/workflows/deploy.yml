@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -38,6 +38,12 @@ jobs:
       - name: Build Project
         run: npm run build
 
+      # Ensure CNAME is present in dist
+      - name: Ensure CNAME in dist
+        run: |
+          if [ -f "CNAME" ]; then cp CNAME dist/CNAME; fi
+
+      # Option A: Deploy to GitHub Pages via official GitHub Actions
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
@@ -49,3 +55,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Option B: Also push compiled dist to gh-pages branch as fallback
+      - name: Deploy to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
